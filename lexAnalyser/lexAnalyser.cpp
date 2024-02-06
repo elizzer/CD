@@ -15,8 +15,14 @@ class token{
 };
 
 class token_list{
-    vector <token> list;
     public:
+    vector <token> list;
+        int size(){
+            return list.size();
+        }
+        token get_token(int index){
+            return list[index];
+        }
         void insert_token(string tok){
             token temp_token(tok);
             list.push_back(temp_token);
@@ -24,7 +30,7 @@ class token_list{
 
         void token_dump(){
             for(int i=0;i<list.size();i++){
-                cout<<endl<<list[i].name;
+                cout<<endl<<list[i].name<<" "<<list[i].type;
             }
         }
 };
@@ -64,18 +70,33 @@ int is_delimiter(char ch){
     return 0;
 }
 
+bool is_keyword(const string &identifier) {
+    // List of some C keywords (you can extend this list as needed)
+    vector<string> keywords = {"int", "char", "float", "if", "else", "while", "for", "return","include","printf"};
 
+    for (const string &kw : keywords) {
+        if (identifier == kw) {
+            return true;
+        }
+    }
+    return false;
+}
 
+bool is_numeric_literal(const string &token) {
+    // Check if the token is a numeric literal (integer in this example)
+    for (char ch : token) {
+        if (!isdigit(ch)) {
+            return false;
+        }
+    }
+    return true;
+}
 
-int main(int argc, char* argv[]){
-    string fileName=argv[1];
+void tokenize(string file_name,token_list &tokens){
 
-    ifstream c_file_stream;
-
-    c_file_stream.open(fileName);
-    token_list tokens;
     string line;
-
+    ifstream c_file_stream;
+    c_file_stream.open(file_name);
     while(getline(c_file_stream,line)){
 
 
@@ -115,6 +136,24 @@ int main(int argc, char* argv[]){
     }
     cout<<"\nPrinting token list";
     // token_list.push_back(new token);
+    // tokens.token_dump();
+}
+
+
+int main(int argc, char* argv[]){
+    string file_name=argv[1];
+
+    token_list tokens;
+    tokenize(file_name,tokens);
+
+    for(int i=0;i<tokens.size();i++){
+        if(is_keyword(tokens.get_token(i).name)){
+            tokens.list[i].type="KEYWORD";
+        }else if(is_numeric_literal(tokens.get_token(i).name)){
+            tokens.list[i].type="LITREL";
+        }
+    }
+
     tokens.token_dump();
 
     return 0;
